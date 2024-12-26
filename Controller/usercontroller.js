@@ -7,6 +7,7 @@ const signup=async(request,response)=>{
      
     try{   
         const hashedPassword=await argon2.hash(request.body.password)
+
         console.log(request.body);
         await  user.create({Firstname:request.body.name,Email:request.body.email,Mobile:request.body.mobile,Password:hashedPassword})
       return  response.send({message:"success"})
@@ -41,6 +42,8 @@ if (await argon2.verify(findUser.Password, req.body.password)) {
   } else {
    return res.status(400).json("email and password is not match")
   }
+
+
 }catch(err){
 return res.status(500).json(err.message)
 }

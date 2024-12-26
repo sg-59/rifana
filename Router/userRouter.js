@@ -1,12 +1,15 @@
 const router=require('express').Router()
 const { signup, getdataFromdatabase } = require('../Controller/usercontroller')
 const user=require('../model/userSchema')
+const verifyToken = require('../verifyToken')
 
 router.post('/postData',signup)
 
 router.get('/getData',getdataFromdatabase)
 
-router.get('/getSingleData/:id',async(req,res)=>{
+router.get('/getSingleData/:id',verifyToken,async(req,res)=>{
+    console.log("after verify token");
+    
 try{
 const singleData=await user.findById(req.params.id)
 res.status(200).json(singleData)
@@ -26,10 +29,10 @@ res.status(500).json(err.message)
     }
 })
 
-router.put('/updateDataBase/:id',async(req,res)=>{
+router.put('/updateDataBase/:id',verifyToken,async(req,res)=>{
 try{
-const updateDatabase=await user.findByIdAndUpdate(req.params.id,{$set:{Email:req.body.email,Mobile:req.body.mobile,Firstname:req.body.Firstname,Password:req.body.Password}},{new:true})
-res.status(200).json(updateDatabase)
+await user.findByIdAndUpdate(req.params.id,{$set:{Email:req.body.email,Mobile:req.body.mobile,Firstname:req.body.name,Password:req.body.password}},{new:true})
+res.status(200).json("update success")
 }catch(err){
 res.status(500).json(err.message)
 }
@@ -48,10 +51,10 @@ res.status(500).json(err.message)
 }
 })
 
-router.delete('/deleteDatabase/:id',async (req,res)=>{
+router.delete('/deleteDatabase/:id',verifyToken,async (req,res)=>{
     try{
 await user.findByIdAndDelete(req.params.id)
-res.status(200).json({message:"Delete data from data base"})
+res.status(200).json({message:"Your account is deleted"})
     }catch(err){
 res.status(500).json(err.message)
     }
