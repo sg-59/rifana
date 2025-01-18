@@ -2,8 +2,22 @@ const router=require('express').Router()
 const { signup, getdataFromdatabase } = require('../Controller/usercontroller')
 const user=require('../model/userSchema')
 const verifyToken = require('../verifyToken')
+const multer=require('multer')
 
-router.post('/postData',signup)
+
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, './images/')
+    },
+    filename: function (req, file, cb) {
+      cb(null, file.originalname)
+    }
+  })
+  
+  const upload = multer({ storage: storage })
+
+router.post('/postData',upload.single('image'),signup)
 
 router.get('/getData',getdataFromdatabase)
 
@@ -69,6 +83,15 @@ res.status(500).json(err.message)
     }
 })
 
+
+router.get('/getquerryData',async(req,res)=>{
+    try{
+const responseData=await user.find({age:{$gt:25}})
+res.status(200).json(responseData)
+    }catch(err){
+
+    }
+})
 
 
  

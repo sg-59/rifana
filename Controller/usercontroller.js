@@ -1,16 +1,30 @@
 const argon2 = require('argon2');
 const jwt=require('jsonwebtoken')
 const user=require('../model/userSchema')
+const cloudinary=require('cloudinary').v2
+
+cloudinary.config({
+     cloud_name:process.env.CloudName,
+     api_key:process.env.APIkey,
+    api_secret:process.env.APIsecret
+})
 
 const signup=async(request,response)=>{
-     console.log("react data in backend",request.body);
+     console.log("react data in backend************************",request.body.name);
+     const image=request.file.path
+     console.log("images",image);
      
+    const hostedimage= await cloudinary.uploader.upload(image)
+    console.log("hosted image",hostedimage);
+    
     try{   
         const hashedPassword=await argon2.hash(request.body.password)
 
         console.log(request.body);
-        await  user.create({Firstname:request.body.name,Email:request.body.email,Mobile:request.body.mobile,Password:hashedPassword})
-      return  response.send({message:"success"})
+      const dataBasedata=await  user.create({Firstname:request.body.name,Email:request.body.email,Mobile:request.body.mobile,Password:hashedPassword,image:hostedimage.secure_url})
+console.log("******************************************************************",dataBasedata);
+
+      return  response.send({message:"success",data:dataBasedata})
            }catch(err){
       return  response.send(err.message)
            } 
